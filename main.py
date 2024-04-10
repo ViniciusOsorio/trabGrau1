@@ -5,10 +5,11 @@ continuar = True
 menu = 0
 cargaMax = 800
 cargaUsada = 0
-volumeMax = 200
+volumeMax = 20
 volumeUsado = 0
 pacotes = []
 contPacDia = 0
+seguro = 0
 
 #Classe de pacote individual
 class Pacote:
@@ -87,34 +88,76 @@ while continuar:
                 match operacao: #Opções das ações de paradas
                     case "a": #Coletar pacote
                         
-                        pesoEnt = input("\nInforme o peso(Kg) do pacote coletado: ")
-                        if not pesoEnt.replace(".", "1").isdigit(): #Testando se valor é válido
-                            pesoEnt = input("Valor inválido! Favor, informar o peso(Kg) do pacote coletado: ")
-                            print(float(pesoEnt))
-                        if (cargaMax > (cargaUsada + float(pesoEnt))): #Testando se novo pacote exederá o peso máximo
+                        pesoColeta = input("\nInforme o peso(Kg) do pacote coletado: ")
+                        if not pesoColeta.replace(".", "1").isdigit(): #Testando se valor é válido
+                            pesoColeta = input("Valor inválido! Favor, informar o peso(Kg) do pacote coletado: ")
+                            print(float(pesoColeta))
+                        if (cargaMax > (cargaUsada + float(pesoColeta))): #Testando se novo pacote exederá o peso máximo
                             confValor = 0
+                            seguro = 0
+                            valorColeta = float(pesoColeta)*1.5                            
                             
-                            print("Valor do transporte: R$",Decimal(float(pesoEnt)*1.5))
-                            confValor = input("Confirma valor? S/N\n")
+                            #O valor do transporte do pacote será calculado de acordo com o peso. R$1,50 por kg.
+                            #Se o peso do pacote for 10* o volume do veículo, será cobrado R$0,80 por Kg excedente
+                            if (float(pesoColeta) > float(volumeMax) * 10):
+                                seguro = 0.8 * (float(pesoColeta) - (float(volumeMax) * 10))
+                                
+                            total = float(valorColeta) + float(seguro)
+
+                            print(f"Valor do transporte: R${float(valorColeta):,.2f}")
+                            print(f'Seguro: R${float(seguro):,.2f}')
+                            print(f'Total a Pagar: R${float(total):,.2f}')
+
+                            confValor = input("\nConfirma valor? S/N\n")
                             while (confValor != "S" or confValor != "s" or confValor != "N" or confValor != "n"):
                                 if (confValor == "S" or confValor == "s"):
-                                    cargaUsada += float(pesoEnt)
-                                    pac = Pacote(contPacDia, pesoEnt, Decimal(float(pesoEnt)*1.5))
+                                    cargaUsada += float(pesoColeta)
+                                    pac = Pacote(contPacDia, pesoColeta, Decimal(float(pesoColeta)*1.5))
                                     pacotes.append(pac)
                                     contPacDia+=1
-                                    print(cargaUsada, contPacDia, pac.valorUnit)
+                                    print("Pacote incluído.")
                                     break
                                 elif (confValor == "N" or confValor == "n"):
                                     print("Valor não-aceito. Cancelando coleta.")
                                     break
                                 else:
-                                    confValor = input("Opção inválida. Confirma valor? S/N")
+                                    confValor = input("Opção inválida. Confirma valor? S/N\n")
 
                         else:
                             print("\nPeso excederá capacidade do veículo. Cancelando coleta.\n")
 
-                    case "b":
-                        print("Entrega")
+                    case "b":                        
+                        continuarEntrega = True
+                        pacoteEscolhido = 0
+                        print("Pacotes:\n")
+                        while continuarEntrega:                            
+                            for pac in pacotes:
+                                print(f"{pac.identificador + 1}- Peso: {pac.peso}kg")
+                            pacoteEntrega = input("Qual pacote deseja entregar?")
+                            if(not pacoteEntrega.isdigit()):
+                                print("Opção inválida! Informe um pacote a ser removido!")
+                            else:
+                                index = 0
+                                for pac in pacotes:
+                                    print(pac)
+                                    if(pacoteEntrega == pac.identificador):
+                                        entregaPacote = input("Deseja realmente remover o pacote? S/N")
+                                        match entregaPacote:
+                                            case "S","s":
+                                                pacotes.remove(pac)                                                
+                                                prosseguir = input("Pacote entregue!\nDeseja fazer mais uma entrega? S/N\n")
+                                                match prosseguir:
+                                                    case "S","s":
+                                                        print("Pacotes:")
+                                                    case "N","n":
+                                                        continuarEntrega = False
+                                                        print("Encerrando entregas")
+                                                    case _:
+                                                        print("Opção Inválida!")
+                                            case "N","n":
+                                                prosseguir = input("Deseja continuar a realizar entregas? S/N")
+
+
                     case "c":
                         print("Segue viagem")
                     case _:
