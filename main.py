@@ -243,10 +243,12 @@ def sistema(veiculos):
                     operacao = input("\nInforme a opção de parada:\na- Coletar Pacote\nb- Entregar Pacote\nc- Retomar Viagem\n\n")
                     match operacao: #Opções das ações de paradas
                         case "a": #Coletar pacote
-                            coleta()
+                            # coleta()
+                            print("coleta")
 
                         case "b":
-                            entrega()
+                            # entrega()
+                            print("entrega")
 
                         case "c":
                             limparTela()
